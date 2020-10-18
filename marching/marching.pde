@@ -28,7 +28,7 @@ float[][] nColorGrid;
 LineUtil[] configs;
 
 // fill the grid with perlin noise values for each "dot"
-float xoff, yoff, start=0.1f;
+float xoff, yoff, start=0.f;
 float inc = 0.05f;
 float zoff = 0.f, zinc = 0.01f;
 void populateColorGrid() {
@@ -45,9 +45,9 @@ void populateColorGrid() {
       xoff += inc;
     }
   }
+  zoff += zinc;
   // // uncomment to travel through noise space in time
-  // zoff += zinc;
-  start -= 0.05f;
+  // start -= 0.05f;
 }
 // Populate the configs array with all the local line coordinates
 void populateConfigs() {
@@ -110,7 +110,7 @@ void draw() {
   // ...
   render();
 }
-void render() {
+void render(){
   background(30);
   // color the colorGrid every frame using Perlin Noise
   populateColorGrid();
