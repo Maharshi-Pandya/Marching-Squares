@@ -14,35 +14,40 @@
 // The main file for implementing/visualizing the marching squares algorithm
 // https://github.com/Maharshi-Pandya/Marching-Squares
 
+int totalFrames = 120;
+
 // the "resolution" of the world and corresponding rows and cols
 int nReso = 10;
 int nRows, nCols;
 
 // the "grid" containing the color values of the "dots"
-int[][] nColorGrid;
+float[][] nColorGrid;
 
 // The line configs corresponding to the "values" of the 
 // "dot square" under consideration
 LineUtil[] configs;
 
-// fill the grid with random black or white values for each "dot"
-float xoff, yoff=0.f;
-float inc = 0.1f;
+// fill the grid with perlin noise values for each "dot"
+float xoff, yoff, start=0.1f;
+float inc = 0.05f;
+float zoff = 0.f, zinc = 0.01f;
 void populateColorGrid() {
-  nColorGrid = new int[nCols][nRows];
+  // infinite flying illusion
+  yoff = start;
   for (int y=0; y<nRows; y++) {
     yoff += inc;
-    xoff = 0.f;
+    xoff = 0.f;    // for every yoff, xoff starts at 0
     for (int x=0; x<nCols; x++) { 
       // use Perlin Noise to generate smooth random values
       // so as to make the contour smoother
-      int cColor = (int)(noise(xoff, yoff) * 255);
-      // is the color black or white ?
-      cColor = cColor < 127 ? 0 : 1;
+      float cColor = (noise(xoff, yoff, zoff));
       nColorGrid[x][y] = cColor;
       xoff += inc;
     }
   }
+  // // uncomment to travel through noise space in time
+  // zoff += zinc;
+  start -= 0.05f;
 }
 // Populate the configs array with all the local line coordinates
 void populateConfigs() {
@@ -76,10 +81,10 @@ void binToContour() {
       // for each square value starts at 0.
       value = 0;
       // get the msb to lsb clockwise
-      int msb = nColorGrid[x][y];
-      int b1 = nColorGrid[x+1][y];
-      int b2 = nColorGrid[x+1][y+1];
-      int lsb = nColorGrid[x][y+1];
+      int msb = nColorGrid[x][y] < 0.5f ? 0 : 1;
+      int b1 = nColorGrid[x+1][y] < 0.5f ? 0 : 1;
+      int b2 = nColorGrid[x+1][y+1] < 0.5f ? 0 : 1;
+      int lsb = nColorGrid[x][y+1] < 0.5f ? 0 : 1;
       // set the bit in the value accordingly
       value |= (msb << 3);
       value |= (b1 << 2);
@@ -96,22 +101,27 @@ void setup() {
   // init rows and cols
   nCols = width/nReso;
   nRows = height/nReso;
-
-  populateColorGrid();
-  // init configs
+  // init colorGrid and configs
+  nColorGrid = new float[nCols][nRows];
   populateConfigs();
 }
 // the drawing loop
 void draw() {
+  // ...
+  render();
+}
+void render() {
   background(30);
+  // color the colorGrid every frame using Perlin Noise
+  populateColorGrid();
+  binToContour();
   // draw the colorGrid
   translate(nReso/2, nReso/2);
   for (int y=0; y<nRows; y++) {
     for (int x=0; x<nCols; x++) {
-      fill(nColorGrid[x][y] * 255);
+      fill(0, nColorGrid[x][y] * 255, 0);
+      noStroke();
       ellipse(x*nReso, y*nReso, 4, 4);
     }
   }
-  binToContour();
-  noLoop();
 }

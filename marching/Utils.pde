@@ -32,6 +32,7 @@ class LineUtil {
   void showLines(float x, float y) {
     if (toBeDrawn) {
       stroke(0, 255, 0);
+      strokeWeight(2);
       line((x + coord1.x) * nReso, (y + coord1.y) * nReso, (x + coord2.x)*nReso, (y + coord2.y)*nReso);
       // when the values are 5/10, there will be two lines drawn
       if (isFiveTen) {
